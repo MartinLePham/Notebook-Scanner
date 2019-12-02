@@ -44,6 +44,10 @@ const int Precision_Switch = 7;
 
 int wait = 1000;
 
+void flush() {
+    while(Serial.avaliable()){Serial.read();}
+}
+
 void setup() {
   pinMode(Limit_Switch_X, INPUT);
   pinMode(Limit_Switch_Y, INPUT);
@@ -51,11 +55,62 @@ void setup() {
   Serial.begin(9600);
 }
 
+
+if(avaliable) {
+    buffer = readString();
+    if(buffer==slow) {
+        write(done)
+    }
+    if(buffer==start) {
+        startcode()
+    }
+}
+
 void loop() {
+
+/*
+    while(Serial.avaliable()) {
+        buffer = Serial.readString()
+    }
+    switch(buffer) {
+
+        case "motor_left":
+            move_motor_left()
+            up() //Serial.write("arduino_ready")
+            break
+
+        case "motor_right":
+            move_motor_right()
+            up() //Serial.write("arduino_ready")
+            break
+
+        case "motor_slow_left":
+            move_motor_slow_left()
+            up() //Serial.write("arduino_ready")
+            break
+
+        case "motor_slow_right":
+            move_motor_slow_right()
+            up() //Serial.write("arduino_ready")
+            break
+
+        case "get_data":
+            serial.write(current_y)
+
+        case "stop_motor":
+            stop_motor()
+            break
+
+        default:
+            break
+    }
+*/
+
+
   
   // ---- *PYTHON TELLS ARDUINO TO START* ----
-  serialStart = Serial.read();
-  if (serialStart == 'G') {
+  //serialStart = Serial.read();
+  if (Serial.read() == 'G') {
     //Reset Home Position
     //Serial.println("Hi Python");
     go_home();
@@ -65,6 +120,8 @@ void loop() {
       step_motor_down();
 //      Serial.println(current_position_y);
     }
+
+    up()
 
     // ---- *PYTHON START IMAGING* ----
     delay(wait);
@@ -108,14 +165,19 @@ void loop() {
     }
 
     //start Y scan
-    delay(wait);
+    //delay(wait);
     Serial.println("StartY");
-    delay(wait); // allow python code to loop again to start scan y
+    //delay(wait); // allow python code to loop again to start scan y
+    wait_for_start()
   
     //scan camera down
    // while (digitalRead(Precision_Switch) == LOW) {
     while (current_position_y < y_limit) {
       serial_y = Serial.read(); // determine speed
+      //
+      //Serial.read() -> read one byte
+      //Char is 1 byte
+      //
       if (serialEdge == 'F') { // ----- *PYTHON FOUND EDGE AT PIXEL* ----
         myStepper_y.step(0);
         edge = current_position_y;  //read distance data 
@@ -147,9 +209,10 @@ void loop() {
     }
 
     // ---- TELL PYTHON TO TAKE PIC -----
-    delay(wait);
-    Serial.println("pic");
-    delay(wait);    
+    //delay(wait);
+    Serial.println("arduino_ready");
+    wait_for_python() //only continue when python_ready
+    //delay(wait);    
     
     //go to Top-Right
 //    Serial.println(edges_y[0]);
@@ -161,6 +224,9 @@ void loop() {
       step_motor_up();
     }
      
+
+    Serial.println("arduino_ready");
+    wait_for_python() //only continue when python_ready
     // ---- TELL PYTHON TO TAKE PIC -----
     delay(wait);
     Serial.println("pic");

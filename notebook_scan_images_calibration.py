@@ -31,6 +31,12 @@ Key = None
 Motion = None
 start_scan = None
 
+
+def wait_for_buffer():
+    while(!arduinoData.avaliable()):
+        pass
+    return arduinoData.readline().decode("ASCII").strip("\n").strip("\r")
+
 def save_image(edged, image_number, scan_type):
     frame_filename = "Scan_%d_Frame_%d_at_time_%d.jpg" % (scan_type, image_number, time.process_time() - start_timer)
     loc_n_name = os.path.join(folder, frame_filename)
@@ -49,8 +55,13 @@ def edge_FOV(cnts, edged, edges_list):
     if color_mid == 255:  # color at mid of screen
         print("[INFO] Found Edge... Recording Data...")
         arduinoData.write(b'F')  # ---- TELL ARDUINO WE FOUND EDGE AT PIXEL ----
+
+        '''
         time.sleep(1)  # Wait for arduino to record distance data
         edge = arduinoData.readline().decode("ASCII").strip("\n").strip("\r")  # ---- RETRIEVE EDGE POSITION FROM ARDUINO ----
+        '''
+        edge = wait_for_buffer()
+
         edges_list.append(edge)  # dependent on x or y
     else:
         arduinoData.write(b'S')  # ---- TELL ARDUINO VIDEO DETECTED EDGE (SLOW DOWN)
@@ -161,6 +172,7 @@ while 1:
     # number += 1
 
     # scanning dependencies
+    down()
     if start_scan != "Scan":  # wait to start scanning
         start_scan = arduinoData.readline().decode("ASCII").strip("\n").strip("\r")
         # for element in start_scan:
@@ -201,27 +213,29 @@ length_edges_y = len(edges_y)
 # AA_y =
 
 # ---- WAIT FOR ARDUINO SIGNAL TO TAKE PIC -----
-num_pic = 2
-while 1:
-    take_pic = arduinoData.readline().decode("ASCII").strip("\n").strip("\r")
-    if num_pic == 2:
-        if take_pic == 'pic':
-            print('[INFO] Taking Top-Left Picture...')
-            # ---- save pic ----
-            # ---- contour_distance.py ----
-            time.sleep(5)
-            arduinoData.write('more'.encode())
-            num_pic -= 1
-    elif num_pic == 1:
-        if take_pic == 'pic':
-            print('[INFO] Taking Top-Right Picture...')
-            # ---- save pic ----
-            # ---- contour_distance.py ----
-            time.sleep(5)
-            # arduinoData.write('more'.encode())
-            num_pic -= 1
-    else:
-        break
+
+
+take_pic = wait_for_buffer() #only continues when arduino_ready
+print('[INFO] Taking Top-Left Picture...')
+# ---- save pic ----
+# ---- contour_distance.py ----
+#from contour_distance import take_pic
+#import * from contour_distance
+#import contour_distance
+#contour_distance.func()
+#TODO
+take_left_pic()
+#time.sleep(5)
+arduinoData.write('python_ready'.encode())
+
+wait_for_arduino() #only continues when arduino_ready
+print('[INFO] Taking Top-Right Picture...')
+# ---- save pic ----
+# ---- contour_distance.py ----
+#time.sleep(5)
+# arduinoData.write('more'.encode())
+num_pic -= 1
+arduinoData.write('python_ready'.encode()
 
 # ---- OUTPUT DIMENSIONS ----
 
