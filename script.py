@@ -20,7 +20,7 @@ class Sync:
 
 
 PORT = '/dev/ttyACM0'
-arduinoData = Sync(PORT, 9600, timeout=0)
+arduinoData = Sync(PORT, 115200, timeout=0)
 
 '''
 
@@ -42,8 +42,11 @@ image_result = cam.GetNextImage()
 '''
 
 
-
-
-arduinoData.write(b'r6400\n')
+arduinoData.write(b'r6400')
+arduinoData.wait()
+arduinoData.write(b'd6400')
 arduinoData.wait()
 arduinoData.write(b'l6400')
+arduinoData.wait()
+arduinoData.write(b'u6400')
+arduinoData.wait()

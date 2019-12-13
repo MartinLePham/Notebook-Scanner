@@ -48,13 +48,13 @@ void setup() {
   pinMode(Limit_Switch_X, INPUT);
   pinMode(Limit_Switch_Y, INPUT);
   pinMode(Precision_Switch, INPUT);
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.setTimeout(5);
 }
 
 void tellPython() {
-Serial.flush();
-Serial.write('b');
+  Serial.flush();
+  Serial.write('b');
 }
 
 void loop() {
@@ -62,27 +62,45 @@ void loop() {
   String buff = Serial.readString();
   Serial.print(buff);
 
-  if(buff[0]=='l') {
-        int steps =buff.substring(1).toInt();
-    step_motor_left(steps);
-    tellPython();
-  } else if(buff[0]=='r') {
-        int steps =buff.substring(1).toInt();
-    step_motor_right(steps);
-    tellPython();
-  } else if(buff[0]=='d') {
-        int steps =buff.substring(1).toInt();
-
-    step_motor_down(steps);
-    tellPython();
-  } else if(buff[0]=='u') {
-        int steps =buff.substring(1).toInt();
-
-    step_motor_up(steps);
-    tellPython();
-  } else if(buff[0]=='h') {
-    go_home();
-    tellPython();
+  switch (buff[0])
+  {
+    case 'l': 
+    {
+        int steps = buff.substring(1).toInt();
+        step_motor_left(steps);
+        tellPython();
+        break; 
+    }
+    case 'r':
+    {
+        int steps = buff.substring(1).toInt();
+        step_motor_right(steps);
+        tellPython();
+        break;
+    }
+    case 'd':
+    {
+        int steps = buff.substring(1).toInt();
+        step_motor_down(steps);
+        tellPython();
+        break;
+    }
+    case 'u':
+    {
+        int steps = buff.substring(1).toInt();
+        step_motor_up(steps);
+        tellPython();
+        break;
+    }
+    case 'h':
+    {
+        go_home();
+        tellPython();
+        break;
+    }
+    default:
+        tellPython();
+        break;
   }
   
 }//end of loop
@@ -100,7 +118,8 @@ void step_motor_left(int steps) {
 
 void step_motor_right(int steps) {
   myStepper_x.setSpeed(motor_speed_x);
-  myStepper_x.step(-steps);
+  myStepper_x.step(-steps);  Serial.flush();
+
   //delay(wait);
   current_position_x += 1;
 }
