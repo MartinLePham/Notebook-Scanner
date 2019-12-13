@@ -49,6 +49,7 @@ void setup() {
   pinMode(Limit_Switch_Y, INPUT);
   pinMode(Precision_Switch, INPUT);
   Serial.begin(9600);
+  Serial.setTimeout(5);
 }
 
 void tellPython() {
@@ -59,7 +60,6 @@ Serial.write('b');
 void loop() {
   while(!Serial.available()){}
   String buff = Serial.readString();
-  Serial.flush();
   Serial.print(buff);
 
   if(buff[0]=='l') {

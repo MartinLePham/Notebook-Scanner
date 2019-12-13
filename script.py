@@ -1,5 +1,4 @@
 import serial
-import PySpin
 
 
 class Sync:
@@ -16,14 +15,14 @@ class Sync:
             if('b' in buff):
                 break
 
-
     def flush(self):
         self.arduino.flush()
 
 
 PORT = '/dev/ttyACM0'
+arduinoData = Sync(PORT, 9600, timeout=0)
 
-arduinoData = Sync(PORT, 9600, timeout=1)
+'''
 
 system = pyspin.System.GetInstance()
 cam_list = system.GetCameras()
@@ -39,19 +38,12 @@ print('[INFO] Frame rate to be set to %d...' % framerate_to_set)
 
 cam.BeginAcquisition()
 
-
 image_result = cam.GetNextImage()
+'''
 
 
-arduinoData.write(b'l1600')
+
+
+arduinoData.write(b'r6400\n')
 arduinoData.wait()
-arduinoData.write(b'l1600')
-arduinoData.wait()
-arduinoData.write(b'l1600')
-arduinoData.wait()
-arduinoData.write(b'l1600')
-arduinoData.wait()
-arduinoData.write(b'l1600')
-arduinoData.wait()
-arduinoData.write(b'l1600')
-arduinoData.wait()
+arduinoData.write(b'l6400')
